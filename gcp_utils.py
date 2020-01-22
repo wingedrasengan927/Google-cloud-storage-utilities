@@ -23,6 +23,13 @@ def upload_files_into_bucket(bucket_name, bucketFolder, localFolder, service_key
         localFile = localFolder + "/" + file
         blob = bucket.blob(bucketFolder + "/" + file)
         blob.upload_from_filename(localFile)
+        
+def delete_folder_from_bucket(bucket_name, bucketFolder, service_key_path):
+    """Deletes a blob from the bucket."""
+    storage_client = storage.Client.from_service_account_json(service_key_path)
+    bucket = storage_client.get_bucket(bucket_name)
+    blob = bucket.blob(bucketFolder)
+    blob.delete()
 
 def main():
     parser = argparse.ArgumentParser()
@@ -32,6 +39,7 @@ def main():
     parser.add_argument("--bucket_folder", default=None, type=str, help="name of the folder inside the bucket whose files you want to download")
     parser.add_argument("--local_folder", default=None, type=str, help="the folder in your machine you want to download or upload the files")
     parser.add_argument("-u", action="store_true", default=False, help="upload files into a folder inside a bucker")
+    parser.add_argument("-d", action="store_true", default=False, help="delete a folder from a bucket")
 
     args = parser.parse_args()
 
@@ -39,6 +47,8 @@ def main():
         download_folder_from_bucket(args.bucket_name, args.bucket_folder, args.local_folder, args.service_account)
     elif args.u:
         upload_files_into_bucket(args.bucket_name, args.bucket_folder, args.local_folder, args.service_account)
+    elif args.d:
+        delete_folder_from_bucket(args.bucket_name, args.bucket_folder, args.service_account)
 
 if __name__ == "__main__":
     main()
